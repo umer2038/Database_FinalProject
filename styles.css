@@ -1,0 +1,129 @@
+/* General body styling */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+/* Header styling */
+h1 {
+  text-align: center;
+  margin-top: 30px;
+  color: #333;
+}
+
+/* Chart container styling */
+#chartContainer {
+  max-width: 800px;
+  margin: auto;
+  padding-top: 20px;
+}
+
+/* Canvas styling for chart */
+canvas {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Button styling */
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 10px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Form container styling */
+form {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Form label styling */
+form label {
+  display: block;
+  margin: 10px 0 5px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Input and select styling inside forms */
+form input, form select {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Submit button styling inside form */
+form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #45a049;
+}
+
+/* Error message for invalid email format */
+#emailError {
+  color: red;
+  display: none;
+  font-size: 12px;
+  margin-top: -5px;
+}
+
+/* Custom styling for the vendor reviews and contract renewals sections */
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+li {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+/* Styling for alerts and results after submitting forms */
+#registration-result, #renewal-result {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+#vendor-performance-list {
+  margin-top: 20px;
+  list-style-type: none;
+  padding-left: 0;
+}
+
+#vendor-performance-list li {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}

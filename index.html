@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Certification Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212;
+            color: #ddd;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        h1 {
+            text-align: center;
+            color: #00bcd4;
+            margin-top: 50px;
+            font-size: 40px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 8px rgba(0, 188, 212, 0.6);
+        }
+
+        /* Container for the Chart */
+        #chartContainer {
+            max-width: 850px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1f1f1f, #24292f);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Button Styling */
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            background-color: #00bcd4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            background-color: #0288d1;
+            transform: scale(1.1);
+        }
+
+        /* Form and Input Fields */
+        form {
+            background-color: #1c1c1c;
+            margin: 40px auto;
+            padding: 25px;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        form label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #bbb;
+        }
+
+        form input,
+        form select,
+        form textarea {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background-color: #121212;
+            color: #eee;
+            font-size: 16px;
+        }
+
+        form button {
+            width: 100%;
+            padding: 14px;
+            background-color: #00bcd4;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        form button:hover {
+            background-color: #0288d1;
+        }
+
+        /* Error Message */
+        #emailError {
+            color: #e91e63;
+            display: none;
+        }
+
+        /* List Styles for Renewals and Alerts */
+        ul {
+            padding-left: 20px;
+            margin-top: 20px;
+        }
+
+        ul li {
+            font-size: 18px;
+            margin-bottom: 12px;
+            color: #ccc;
+            transition: all 0.3s ease;
+        }
+
+        ul li:hover {
+            color: #00bcd4;
+            transform: scale(1.05);
+        }
+
+        /* Vendor Performance Report Section */
+        #vendor-performance-list li {
+            font-size: 18px;
+            color: #bbb;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            #chartContainer {
+                width: 100%;
+                padding: 15px;
+            }
+
+            form {
+                width: 100%;
+                padding: 20px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Vendor Certification Dashboard</h1>
+
+    <!-- Chart Container -->
+    <div id="chartContainer">
+        <canvas id="vendorChart" aria-label="Vendor Certification Chart" role="img"></canvas>
+    </div>
+
+    <!-- Buttons -->
+    <div style="text-align:center;">
+        <button onclick="fetchContractRenewals()">Check Contract Renewals</button>
+        <button onclick="checkBudgetAlerts()">Check Budget Alerts</button>
+    </div>
+
+    <!-- Contract Renewals Section -->
+    <section>
+        <h2>Contract Renewals</h2>
+        <label for="filterStatus">Filter by Status:</label>
+        <select id="filterStatus">
+            <option value="">All</option>
+            <option value="Pending">Pending</option>
+            <option value="Renewed">Renewed</option>
+        </select>
+
+        <label for="sortBy">Sort By:</label>
+        <select id="sortBy">
+            <option value="RenewalDate">Renewal Date</option>
+            <option value="ContractID">Contract ID</option>
+        </select>
+
+        <button onclick="fetchContractRenewals()">Apply Filter and Sort</button>
+        <ul id="contract-renewals-list"></ul>
+    </section>
+
+    <!-- Budget Alerts Section -->
+    <section>
+        <h2>Budget Alerts</h2>
+        <ul id="budget-alerts-list"></ul>
+    </section>
+
+    <!-- Vendor Registration Form -->
+    <section>
+        <div class="container">
+            <h2>Vendor Registration</h2>
+            <form id="vendorForm">
+                <label for="vendor_name">Vendor Name:</label>
+                <input type="text" id="vendor_name" name="vendor_name" required />
+
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" required />
+                <div id="emailError">Invalid email format!</div>
+
+                <label for="phone_number">Phone Number:</label>
+                <input type="text" id="phone_number" name="phone_number" required />
+
+                <label for="address">Address:</label>
+                <textarea id="address" name="address" required></textarea>
+
+                <button type="submit">Register Vendor</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Vendor Review Form -->
+    <section>
+        <h2>Submit Vendor Review</h2>
+        <form id="performanceReviewForm">
+            <label for="vendor_id">Vendor ID:</label>
+            <input type="number" id="vendor_id" required />
+
+            <label for="rating">Rating (1-5):</label>
+            <input type="number" id="rating" min="1" max="5" required />
+
+            <label for="review_text">Review:</label>
+            <textarea id="review_text" required></textarea>
+
+            <button type="submit">Submit Review</button>
+        </form>
+    </section>
+
+    <!-- Vendor Performance Report Section -->
+    <section>
+        <h2>Vendor Performance Report</h2>
+        <label for="performance-sortBy">Sort By:</label>
+        <select id="performance-sortBy">
+            <option value="AvgRating">Average Rating</option>
+            <option value="TotalReviews">Total Reviews</option>
+        </select>
+        <button id="generate-report-button">Generate Vendor Performance Report</button>
+        <div style="max-width: 800px; margin: 40px auto;">
+            <canvas id="performanceChart" aria-label="Performance Chart" role="img"></canvas>
+        </div>
+        <ul id="vendor-performance-list"></ul>
+    </section>
+
+    <script>
+       
+
+// Vendor Registration Form Submission
+document.getElementById('vendorForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const vendorName = document.getElementById('vendor_name').value;
+    const email = document.getElementById('email').value;
+    const phone = document.getElementById('phone_number').value;
+    const address = document.getElementById('address').value;
+
+    // Validate if all fields are filled
+    if (!vendorName || !email || !phone || !address) {
+        alert("All fields are required.");
+        return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+        document.getElementById('emailError').style.display = 'block';
+        document.getElementById('email').style.border = '1px solid red';
+        return;
+    } else {
+        document.getElementById('emailError').style.display = 'none';
+        document.getElementById('email').style.border = '';
+    }
+
+    // Validate phone number format (accepts 10 digits, spaces, and hyphens)
+    const phoneRegex = /^[0-9\- ]+$/; // Allows digits, spaces, and hyphens
+    if (!phoneRegex.test(phone) || phone.length < 10) {
+        alert("Invalid phone number format. Please enter a valid phone number.");
+        return;
+    }
+
+    // Send request to the backend
+    fetch('/register-vendor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vendor_name: vendorName, email, phone_number: phone, address })
+    })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            document.getElementById('vendorForm').reset(); // Reset form after successful submission
+        })
+        .catch(error => {
+            console.error('Error registering vendor:', error);
+            alert('Error registering vendor.');
+        });
+});
+
+// Fetch and Display Contract Renewals
+function fetchContractRenewals() {
+    const filterStatus = document.getElementById('filterStatus').value;
+    const sortBy = document.getElementById('sortBy').value;
+
+    const url = `/check-contract-renewals?filterStatus=${filterStatus}&sortBy=${sortBy}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            console.log("Contract Renewals Data:", data); // Debugging log
+            const renewalsList = document.getElementById('contract-renewals-list');
+            renewalsList.innerHTML = ''; // Clear previous list
+            if (data && data.length > 0) {
+                let html = '';
+                data.forEach(renewal => {
+                    html += `<p>Contract ID: ${renewal.ContractID} | Renewal Date: ${new Date(renewal.RenewalDate).toLocaleDateString()}</p>`;
+                });
+                renewalsList.innerHTML = html;
+            } else {
+                renewalsList.innerHTML = '<p>No contract renewals found.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching contract renewals:', error);
+            document.getElementById('contract-renewals-list').innerHTML = '<p>Error loading contract renewals.</p>';
+        });
+}
+
+// Fetch and Display Budget Alerts
+function checkBudgetAlerts() {
+    fetch('/check-budget-alerts')
+        .then(response => response.json())
+        .then(data => {
+            console.log("Budget Alerts Data:", data); // Debugging log
+            const alertsList = document.getElementById('budget-alerts-list');
+            alertsList.innerHTML = ''; // Clear previous list
+            if (data && data.length > 0) {
+                let html = '';
+                data.forEach(alert => {
+                    html += `<p>Alert Date: ${new Date(alert.NotificationDate).toLocaleDateString()} - Message: ${alert.Message || 'N/A'}</p>`;
+                });
+                alertsList.innerHTML = html;
+            } else {
+                alertsList.innerHTML = '<p>No budget alerts found.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching budget alerts:', error);
+            document.getElementById('budget-alerts-list').innerHTML = '<p>Error loading budget alerts.</p>';
+        });
+}
+
+// Fetch and Display Chart Data
+function fetchChartData() {
+    fetch('/chart-data')
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+            } else {
+                renderChart(data);
+            }
+        })
+        .catch(error => console.error('Error fetching chart data:', error));
+}
+
+// Render the Chart
+function renderChart(data) {
+    const ctx = document.getElementById('vendorChart').getContext('2d');
+    const labels = data.map(item => item.Name);
+    const values = data.map(item => (item.CertificationStatus ? 1 : 0));
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Certification Status',
+                data: values,
+                backgroundColor: values.map(value => (value === 1 ? 'rgba(0, 188, 212, 0.8)' : 'rgba(239, 83, 80, 0.8)')),
+                borderColor: values.map(value => (value === 1 ? 'rgba(0, 188, 212, 1)' : 'rgba(239, 83, 80, 1)')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+}
+
+// Call the chart data fetching function when the page loads
+fetchChartData();
+    </script>
+
+</body>
+</html>
